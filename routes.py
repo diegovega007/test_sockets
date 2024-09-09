@@ -1,6 +1,6 @@
 from flask import render_template
 from app import app, socketio, db
-from models import Chat
+#from models import Chat
 from flask_socketio import emit
 from os import environ
 from dotenv import load_dotenv, find_dotenv
@@ -11,7 +11,13 @@ DOMAIN = environ.get('DOMAIN')
 
 @app.route('/<int:channel>/<name>/')
 def open_chat(channel, name):
-    my_chat = Chat.query.filter_by(channel=channel).all()
+    query = {}
+
+    if channel:
+        query['channel'] = int(channel)
+
+    my_chat = db.chat.find(query)
+
     return render_template(
         'chat.html',
         domain=DOMAIN,
@@ -30,14 +36,12 @@ def new_message(message):
     },
         broadcast=True
     )
-    # Save message
-    my_new_chat = Chat(
-        username=message['username'],
-        text=message['text'],
-        channel=message['channel']
-    )
-    db.session.add(my_new_chat)
-    try:
-        db.session.commit()
-    except:
-        db.session.rollback()
+
+    #Save message
+    my_new_chat = {
+        "username":message['username'],
+        "text":message['text'],
+        "channel":message['channel'],
+        "created_At": "2024-09-07 00:13:48.687741"
+    }
+    db.chat.insert_one(my_new_chat)

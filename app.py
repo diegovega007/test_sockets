@@ -3,6 +3,7 @@ from flask import Flask
 from flask_socketio import SocketIO
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_pymongo import PyMongo
 from dotenv import load_dotenv, find_dotenv
 
 # Load environment variables
@@ -19,14 +20,20 @@ app.config['PORT'] = 5000
 # Database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DATABASE_URL', 'postgresql://postgres:admin@localhost/sockets')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Optional
+app.config['MONGO_URI'] = environ.get('DATABASE_URL')
 
 # Initialize extensions
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+#db = SQLAlchemy(app)
+#migrate = Migrate(app, db)
+
+mongo = PyMongo(app)
+
+db = mongo.db
+
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Models
-from models import Chat
+#from models import Chat
 
 # Routes
 from routes import open_chat, new_message
